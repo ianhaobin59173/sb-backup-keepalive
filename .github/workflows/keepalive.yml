@@ -11,9 +11,16 @@ jobs:
     steps:
       - name: Ping Supabase auth health endpoint
         run: |
-          URL="${SUPABASE_URL}/auth/v1/health"
-          echo "Target: $URL"
-          CODE=$(curl -s -o /tmp/body.txt -w "%{http_code}" "$URL" -H "apikey: ${SUPABASE_KEY}" -H "Authorization: Bearer ${SUPABASE_KEY}")
+          BASE="$(printf '%s' "$SUPABASE_URL" | tr -d '\r\n' | sed -e 's#/*$##')"
+          KEY="$(printf '%s' "$SUPABASE_KEY" | tr -d '\r\n')"
+          echo "Base URL: [$BASE]"
+          echo "Key length: ${#KEY}"
+          if [ -z "$BASE" ] || [ -z "$KEY" ]; then
+            echo "FATAL: secret is empty. Please check repository secrets."
+            exit 1
+          fi
+          URL="$BASE/auth/v1/health"
+          CODE=$(curl -sS -o /tmp/body.txt -w "%{http_code}" "$URL" -H "apikey: $KEY" -H "Authorization: Bearer $KEY") || { echo "FATAL: curl could not send the request."; exit 2; }
           echo "HTTP response code: $CODE"
           echo "Body: $(cat /tmp/body.txt)"
           if [ "$CODE" = "200" ]; then
@@ -21,6 +28,13 @@ jobs:
           else
             echo "WARNING - unexpected response code: $CODE"
           fi
+
+
+
+
+
+
+
 
 
 

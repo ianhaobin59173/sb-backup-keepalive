@@ -9,17 +9,19 @@ jobs:
   keepalive:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase to keep project active
+      - name: Ping Supabase auth health endpoint
         run: |
-          URL="${SUPABASE_URL}/rest/v1/"
+          URL="${SUPABASE_URL}/auth/v1/health"
           echo "Target: $URL"
-          CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL" -H "apikey: ${SUPABASE_KEY}" -H "Authorization: Bearer ${SUPABASE_KEY}" -H "Prefer: count=exact" -H "Range: 0-0")
+          CODE=$(curl -s -o /tmp/body.txt -w "%{http_code}" "$URL" -H "apikey: ${SUPABASE_KEY}" -H "Authorization: Bearer ${SUPABASE_KEY}")
           echo "HTTP response code: $CODE"
+          echo "Body: $(cat /tmp/body.txt)"
           if [ "$CODE" = "200" ]; then
             echo "OK - Supabase project is active and responding."
           else
             echo "WARNING - unexpected response code: $CODE"
           fi
+
 
 
 

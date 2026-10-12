@@ -14,55 +14,18 @@ jobs:
           SB_URL: ${{ secrets.SUPABASE_URL }}
           SB_KEY: ${{ secrets.SUPABASE_KEY }}
         run: |
-          echo "form-url-length: ${#SB_URL}"
-          echo "form-key-length: ${#SB_KEY}"
-          echo "bare-url-length: ${#SUPABASE_URL}"
-          echo "bare-key-length: ${#SUPABASE_KEY}"
           BASE="$(printf '%s' "$SB_URL" | tr -d '\r\n' | sed -e 's#/*$##')"
           KEY="$(printf '%s' "$SB_KEY" | tr -d '\r\n')"
-          echo "Base URL: [$BASE]"
           if [ -z "$BASE" ] || [ -z "$KEY" ]; then
-            echo "FATAL: secret is empty."
+            echo "FATAL: SUPABASE_URL or SUPABASE_KEY secret is missing or empty."
             exit 1
           fi
           URL="$BASE/auth/v1/health"
           CODE=$(curl -sS -o /tmp/body.txt -w "%{http_code}" "$URL" -H "apikey: $KEY" -H "Authorization: Bearer $KEY") || { echo "FATAL: curl could not send the request."; exit 2; }
           echo "HTTP response code: $CODE"
-          echo "Body: $(cat /tmp/body.txt)"
+          echo "Response: $(cat /tmp/body.txt)"
           if [ "$CODE" = "200" ]; then
             echo "OK - Supabase project is active and responding."
           else
             echo "WARNING - unexpected response code: $CODE"
           fi
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

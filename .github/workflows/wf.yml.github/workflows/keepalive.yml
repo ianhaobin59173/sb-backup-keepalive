@@ -1,0 +1,50 @@
+name: SB备份兼保活
+
+on:
+  schedule:
+    - cron: '17 21 * * *'
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase to keep project active
+        run: |
+          URL="${SUPABASE_URL}/rest/v1/"
+          echo "Target: $URL"
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL" \
+            -H "apikey: ${SUPABASE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_KEY}" \
+            -H "Prefer: count=exact" \
+            -H "Range: 0-0")
+          echo "HTTP response code: $CODE"
+          if [ "$CODE" = "200" ]; then
+            echo "OK - Supabase project is active and responding."
+          else
+            echo "WARNING - unexpected response code: $CODE"
+          fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
